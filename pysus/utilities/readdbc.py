@@ -54,4 +54,17 @@ def dbc2dbf(infile, outfile):
     # print(os.path.exists(outfile))
 
 
+def dbc2csv(filename, tempdir='.', encoding='iso-8859-1', raw=False):
+    outputfile = str(filename).replace(".dbc", ".csv")
+    if isinstance(filename, str):
+        filename = filename.encode()
+    with NamedTemporaryFile(delete=True, dir=tempdir) as tf:
+        dbc2dbf(filename, tf.name.encode())
+        dbf = DBF(tf.name, encoding=encoding, raw=raw)
+
+        with open(outputfile, "w") as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(dbf.field_names)
+            for record in dbf:
+                writer.writerow(list(record.values()))
 
